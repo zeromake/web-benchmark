@@ -1,5 +1,6 @@
 import tornado.ioloop
 import tornado.web
+import multiprocessing
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -12,6 +13,8 @@ def make_app():
     ], debug=False)
 
 if __name__ == "__main__":
-    app = make_app()
-    app.listen(5000)
+    workers = multiprocessing.cpu_count() * 2
+    server = tornado.httpserver.HTTPServer(make_app())
+    server.bind(5000)
+    server.start(workers)  # forks one process per cpu
     tornado.ioloop.IOLoop.current().start()
