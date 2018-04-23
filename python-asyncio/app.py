@@ -5,12 +5,6 @@ from datetime import datetime, timezone
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-
-def get_timestamp():
-    return int(datetime.now(timezone.utc).timestamp())
-
-logfile = open("./time.log", "w")
-
 # _RESP_CACHE = {}
 
 # class HttpRequest:
@@ -101,11 +95,10 @@ logfile = open("./time.log", "w")
 #         self._current_request = None
 
 class Request(object):
-    __slots__ = ('_loop', '_timestamp', '_transport', '_current_parser', '_callback')
+    __slots__ = ('_loop', '_transport', '_current_parser', '_callback')
 
     def __init__(self, transport, loop=None, callback=None):
         self._loop = loop
-        self._timestamp = get_timestamp()
         self._transport = transport
         self._callback = callback
         # self._headers_complete = False
@@ -133,15 +126,9 @@ class Request(object):
         )
         if not self._current_parser.should_keep_alive():
             self._transport.close()
-        timestamp = get_timestamp() - self._timestamp
-        if timestamp > 0:
-            logfile.write("complete: %d ns\n" % timestamp)
-            logfile.flush()
         if self._callback is not None:
             self._callback()
         # self._current_parser = None
-    
-
 
 class HttpProtocol(asyncio.Protocol):
     __slots__ = ('_loop', '_transport', '_requset')
@@ -180,6 +167,6 @@ async def main(loop):
     # await asyncio.sleep(60000)
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(loop))
-    loop.run_forever()
+    base_loop = asyncio.get_event_loop()
+    base_loop.run_until_complete(main(base_loop))
+    base_loop.run_forever()
