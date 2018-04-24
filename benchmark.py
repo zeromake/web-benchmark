@@ -21,7 +21,7 @@ def split_ab(line: str):
 
 def benchmark_ab():
     data = {}
-    exec_shell("ab -n 20000 -c 100 http://127.0.0.1:5000/echo > benchmark.log")
+    exec_shell("ab -n 20000 -c 200 http://127.0.0.1:5000/echo > benchmark.log")
     try:
         with open("benchmark.log", 'r', encoding='utf8') as benchmark:
             for line in benchmark:
@@ -45,7 +45,7 @@ def benchmark_siege():
         with open("benchmark.log", 'r', encoding='utf8') as benchmark:
             line = benchmark.readlines()[-1]
             temp = [x.strip() for x in line.split(",")]
-            data['level'] = 100
+            data['level'] = 200
             data['time'] = float(temp[2]) * 1000
             data['request_count'] = int(temp[1])
             data['rps'] = float(temp[5])
