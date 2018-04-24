@@ -1,7 +1,7 @@
 import asyncio
 import uvloop
-import httptools
-from datetime import datetime, timezone
+# import httptools
+# from datetime import datetime, timezone
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -94,27 +94,57 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 #         self._current_parser = None
 #         self._current_request = None
 
-class Request(object):
-    __slots__ = ('_loop', '_transport', '_current_parser', '_callback')
+# class Request(object):
+#     __slots__ = ('_loop', '_transport', '_current_parser', '_callback')
 
-    def __init__(self, transport, loop=None, callback=None):
-        self._loop = loop
-        self._transport = transport
-        self._callback = callback
-        # self._headers_complete = False
-        self._current_parser = httptools.HttpRequestParser(self)
+#     def __init__(self, transport, loop=None, callback=None):
+#         self._loop = loop
+#         self._transport = transport
+#         self._callback = callback
+#         # self._headers_complete = False
+#         self._current_parser = httptools.HttpRequestParser(self)
     
-    def feed_data(self, data):
-        return self._current_parser.feed_data(data)
+#     def feed_data(self, data):
+#         return self._current_parser.feed_data(data)
 
-    def on_headers_complete(self):
-        # self._headers_complete = True
-        self._loop.create_task(self.handle())
+#     def on_headers_complete(self):
+#         # self._headers_complete = True
+#         self._loop.create_task(self.handle())
 
-    # def is_headers_complete(self):
-    #     return self._headers_complete
+#     # def is_headers_complete(self):
+#     #     return self._headers_complete
 
-    async def handle(self):
+#     async def handle(self):
+#         self._transport.write(
+#             b'\r\n'.join([
+#                 b'HTTP/1.1 200 OK',
+#                 b'Content-Type: text/plain',
+#                 b'Content-Length: 4',
+#                 b'',
+#                 b'echo'
+#             ])
+#         )
+#         if not self._current_parser.should_keep_alive():
+#             self._transport.close()
+#         if self._callback is not None:
+#             self._callback()
+        # self._current_parser = None
+
+class HttpProtocol(asyncio.Protocol):
+    __slots__ = ('_loop', '_transport')
+
+    def __init__(self, *, loop=None):
+        self._loop = loop
+        self._transport = None
+        # self._requset = None
+
+    def connection_made(self, transport):
+        self._transport = transport
+
+    # def connection_lost(self, exc):
+    #     self._requset = None
+    
+    def data_received(self, data):
         self._transport.write(
             b'\r\n'.join([
                 b'HTTP/1.1 200 OK',
@@ -124,43 +154,13 @@ class Request(object):
                 b'echo'
             ])
         )
-        if not self._current_parser.should_keep_alive():
-            self._transport.close()
-        if self._callback is not None:
-            self._callback()
-        # self._current_parser = None
-
-class HttpProtocol(asyncio.Protocol):
-    __slots__ = ('_loop', '_transport', '_requset')
-
-    def __init__(self, *, loop=None):
-        self._loop = loop
-        self._transport = None
-        self._requset = None
-
-    def connection_made(self, transport):
-        self._transport = transport
-
-    def connection_lost(self, exc):
-        self._requset = None
+        self._transport.close()
+        # if self._requset is None:
+        #     self._requset = Request(self._transport, self._loop, self.callback)
+        # self._requset.feed_data(data)
     
-    def data_received(self, data):
-        # self._transport.write(
-        #     b'\r\n'.join([
-        #         b'HTTP/1.1 200 OK',
-        #         b'Content-Type: text/plain',
-        #         b'Content-Length: 4',
-        #         b'',
-        #         b'echo'
-        #     ])
-        # )
-        # self._transport.close()
-        if self._requset is None:
-            self._requset = Request(self._transport, self._loop, self.callback)
-        self._requset.feed_data(data)
-    
-    def callback(self):
-        self._requset = None
+    # def callback(self):
+    #     self._requset = None
 
 async def main(loop):
     await loop.create_server(lambda: HttpProtocol(loop=loop), host="0.0.0.0", port=5000)
