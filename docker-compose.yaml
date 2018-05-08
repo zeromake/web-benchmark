@@ -35,4 +35,9 @@ services:
         ports:
           - "5000:5000"
         network_mode: "host"
+    aiko:
+        build: ./aiko/
+        ports:
+          - "5000:5000"
+        network_mode: "host"
 

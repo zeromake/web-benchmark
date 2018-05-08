@@ -20,4 +20,4 @@ WORKDIR /data/
 
 COPY app.py /data/
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "-w", "16", "--log-level", "error", "--worker-class", "quart.worker.GunicornUVLoopWorker", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "-w", "16", "--log-level", "error", "--worker-class", "aiko.worker.GunicornUVLoopWorker", "app:app"]

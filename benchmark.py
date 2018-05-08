@@ -65,11 +65,11 @@ def start_benchmark(name: str):
                 if temp:
                     print("%s ab rps: %f" % (name, temp.get('rps', 0)))
                     ab.append(temp)
-            for _ in range(3):
-                temp = benchmark_siege()
-                if temp:
-                    print("%s siege rps: %f" % (name, temp.get('rps', 0)))
-                    siege.append(temp)
+            # for _ in range(3):
+            #     temp = benchmark_siege()
+            #     if temp:
+            #         print("%s siege rps: %f" % (name, temp.get('rps', 0)))
+            #         siege.append(temp)
         finally:
             print("stop %s" % name)
             exec_shell("docker-compose", "stop", name)
